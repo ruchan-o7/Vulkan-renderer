@@ -1,4 +1,5 @@
 #pragma once
 namespace vr {
-void printDemo();
+class Application {};
+
 } // namespace vr

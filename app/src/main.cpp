@@ -1,6 +1,6 @@
 #include <core/demo.h>
 
 int main() {
-  vr::printDemo();
+  vr::openWindow();
   return 0;
 }
