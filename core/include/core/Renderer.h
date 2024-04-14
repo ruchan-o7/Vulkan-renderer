@@ -7,11 +7,16 @@ namespace vr {
 class Renderer {
  public:
   Renderer(GLFWwindow* window);
-  ~Renderer();
+  ~Renderer() = default;
+  void CleanUp();
 
  private:
   void Init();
-  void CleanUp();
+
+ private:
   VkInstance m_VkInstance;
+  VkSurfaceKHR m_Surface;
+  VkPhysicalDevice m_Pdevice;
+  VkDevice m_Device;
 };
 }  // namespace vr
