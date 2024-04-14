@@ -20,11 +20,6 @@ struct QueueuFamilyIndices {
     return graphicsFamily.has_value() && presentFamily.has_value();
   }
 };
-struct SwapChainSupportDetails {
-  VkSurfaceCapabilitiesKHR capabilities;
-  List<VkSurfaceFormatKHR> formats;
-  List<VkPresentModeKHR> presentModes;
-};
 #define APPNAME "Renderer"
 static VkDebugUtilsMessengerEXT m_DebugMesenger;
 static List<const char *> getRequiredExtension() {
@@ -396,5 +391,29 @@ void createSwapchain(VkPhysicalDevice &pDevice, VkDevice &device,
                                    swapchain.images.data()));
   swapchain.format = sf.format;
   swapchain.extent = extent;
+  u32 swapchainImageCount = swapchain.images.size();
+  swapchain.imageViews.resize(swapchainImageCount);
+  for (u32 i = 0; i < swapchainImageCount; i++) {
+    swapchain.imageViews[i] =
+        createImageView(swapchain.images[i], swapchain.format,
+                        VK_IMAGE_ASPECT_COLOR_BIT, 1, device);
+  }
+}
+VkImageView createImageView(VkImage image, VkFormat format,
+                            VkImageAspectFlags aspectFlags, u32 mipLevels,
+                            VkDevice device) {
+  VkImageViewCreateInfo viewInfo{};
+  viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  viewInfo.image = image;
+  viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  viewInfo.format = format;
+  viewInfo.subresourceRange.aspectMask = aspectFlags;
+  viewInfo.subresourceRange.baseMipLevel = 0;
+  viewInfo.subresourceRange.levelCount = mipLevels;
+  viewInfo.subresourceRange.baseArrayLayer = 0;
+  viewInfo.subresourceRange.layerCount = 1;
+  VkImageView imageView;
+  VK_CHECK(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
+  return imageView;
 }
 }  // namespace vr

@@ -17,4 +17,7 @@ void DestroyDebugUtility(VkInstance instance);
 void createSwapchain(VkPhysicalDevice& pDevice, VkDevice& device,
                      VkSurfaceKHR& surface, GLFWwindow* window,
                      Swapchain& swapchain);
+VkImageView createImageView(VkImage image, VkFormat format,
+                            VkImageAspectFlags aspectFlags, u32 mipLevels,
+                            VkDevice device);
 }  // namespace vr
