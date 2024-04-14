@@ -2,6 +2,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "renderer/Swapchain.h"
+
+
 struct GLFWwindow;
 namespace vr {
 class Renderer {
@@ -18,5 +21,6 @@ class Renderer {
   VkSurfaceKHR m_Surface;
   VkPhysicalDevice m_Pdevice;
   VkDevice m_Device;
+  Swapchain m_Swapchain;
 };
 }  // namespace vr

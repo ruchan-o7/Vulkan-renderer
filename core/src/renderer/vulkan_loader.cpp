@@ -3,10 +3,12 @@
 #include <GLFW/glfw3.h>
 
 #include <cassert>
+#include <glm/glm.hpp>
 
 #include "Base.h"
 #include "log.h"
 #include "pch.h"
+#include "renderer/Swapchain.h"
 #include "renderer/vulkan_util.h"
 #include "vulkan/vulkan_core.h"
 
@@ -289,4 +291,110 @@ void DestroyDebugUtility(VkInstance instance) {
   destroyDebugUtilsMessengerEXT(instance, m_DebugMesenger, nullptr);
 }
 
+static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice &device,
+                                                     VkSurfaceKHR &surface) {
+  SwapChainSupportDetails details{};
+  vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
+                                            &details.capabilities);
+  u32 formatCount;
+  vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+  if (formatCount != 0) {
+    details.formats.resize(formatCount);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount,
+                                         details.formats.data());
+  }
+  u32 presentModeCount = 0;
+  vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount,
+                                            NULL);
+  if (presentModeCount != 0) {
+    details.presentModes.resize(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(
+        device, surface, &presentModeCount, details.presentModes.data());
+  }
+  return details;
+}
+
+static inline VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
+    const List<VkSurfaceFormatKHR> &availableFormats) {
+  for (const auto &aF : availableFormats) {
+    if (aF.format == VK_FORMAT_B8G8R8A8_SRGB &&
+        aF.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+      return aF;
+    }
+  }
+  return availableFormats[0];
+}
+static inline VkPresentModeKHR ChooseSwapPresentMode(
+    const List<VkPresentModeKHR> &availablePresentModes) {
+  (void)availablePresentModes;
+  return VK_PRESENT_MODE_FIFO_KHR;
+}
+static inline VkExtent2D ChooseSwapExtent(
+    const VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow *window) {
+  if (capabilities.currentExtent.width != std::numeric_limits<u32>::max()) {
+    return capabilities.currentExtent;
+  } else {
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    VkExtent2D actualExtend = {static_cast<uint32_t>(w),
+                               static_cast<uint32_t>(h)};
+    actualExtend.width =
+        glm::clamp(actualExtend.width, capabilities.minImageExtent.width,
+                   capabilities.maxImageExtent.width);
+
+    actualExtend.height =
+        glm::clamp(actualExtend.height, capabilities.minImageExtent.height,
+                   capabilities.maxImageExtent.height);
+    return actualExtend;
+  }
+}
+void createSwapchain(VkPhysicalDevice &pDevice, VkDevice &device,
+                     VkSurfaceKHR &surface, GLFWwindow *window,
+                     Swapchain &swapchain) {
+  SwapChainSupportDetails swapChainSupport =
+      QuerySwapChainSupport(pDevice, surface);
+  VkSurfaceFormatKHR sf = ChooseSwapSurfaceFormat(swapChainSupport.formats);
+  VkPresentModeKHR pm = ChooseSwapPresentMode(swapChainSupport.presentModes);
+  VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, window);
+  u32 imageCount = swapChainSupport.capabilities.minImageCount + 1;
+  if (swapChainSupport.capabilities.maxImageCount > 0 &&
+      imageCount > swapChainSupport.capabilities.maxImageCount) {
+    imageCount = swapChainSupport.capabilities.maxImageCount;
+  }
+  VkSwapchainCreateInfoKHR createInfo{};
+  createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  createInfo.surface = surface;
+  createInfo.minImageCount = imageCount;
+  createInfo.imageFormat = sf.format;
+  createInfo.imageColorSpace = sf.colorSpace;
+  createInfo.imageExtent = extent;
+  createInfo.imageArrayLayers = 1;
+  createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+  QueueuFamilyIndices indices = findQueueFamilies(pDevice, surface);
+  u32 queueFamilyIndicies[] = {indices.graphicsFamily.value(),
+                               indices.presentFamily.value()};
+  if (indices.graphicsFamily != indices.presentFamily) {
+    createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+    createInfo.queueFamilyIndexCount = 2;
+    createInfo.pQueueFamilyIndices = queueFamilyIndicies;
+  } else {
+    createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createInfo.queueFamilyIndexCount = 0;
+    createInfo.pQueueFamilyIndices = nullptr;
+  }
+  createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+  createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+  createInfo.presentMode = pm;
+  createInfo.clipped = VK_TRUE;
+  VK_CHECK(
+      vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapchain.swapchain));
+
+  VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain.swapchain, &imageCount,
+                                   nullptr));
+  swapchain.images.resize(imageCount);
+  VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain.swapchain, &imageCount,
+                                   swapchain.images.data()));
+  swapchain.format = sf.format;
+  swapchain.extent = extent;
+}
 }  // namespace vr

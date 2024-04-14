@@ -15,9 +15,11 @@ Renderer::Renderer(GLFWwindow* window) {
   createSurface(m_VkInstance, window, m_Surface);
   pickPhysicalDevice(m_VkInstance, m_Pdevice, m_Surface);
   createLogicalDevice(m_Pdevice, m_Device, m_Surface);
+  createSwapchain(m_Pdevice, m_Device, m_Surface, window, m_Swapchain);
 }
 
 void Renderer::CleanUp() {
+  m_Swapchain.Cleanup(m_Device);
   vkDestroyDevice(m_Device, nullptr);
 #ifdef VR_DEBUG
   DestroyDebugUtility(m_VkInstance);
