@@ -1,6 +1,6 @@
-#include <core/demo.h>
+#include <core/Application.h>
 
 int main() {
-  vr::openWindow();
-  return 0;
+  vr::Application app;
+  app.Run();
 }
