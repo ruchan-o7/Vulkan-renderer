@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "Base.h"
 #include "log.h"
 #include "renderer/vulkan_loader.h"
 #include "vulkan/vulkan_core.h"
@@ -16,9 +17,12 @@ Renderer::Renderer(GLFWwindow* window) {
   pickPhysicalDevice(m_VkInstance, m_Pdevice, m_Surface);
   createLogicalDevice(m_Pdevice, m_Device, m_Surface);
   createSwapchain(m_Pdevice, m_Device, m_Surface, window, m_Swapchain);
+  m_Renderpass =
+      CreateShared<Renderpass>(m_Device, m_Pdevice, m_Swapchain.format);
 }
 
 void Renderer::CleanUp() {
+  m_Renderpass->CleanUp();
   m_Swapchain.Cleanup(m_Device);
   vkDestroyDevice(m_Device, nullptr);
 #ifdef VR_DEBUG

@@ -1,9 +1,10 @@
 #pragma once
+#include "Base.h"
+#include "renderer/Renderpass.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 #include "renderer/Swapchain.h"
-
 
 struct GLFWwindow;
 namespace vr {
@@ -22,5 +23,6 @@ class Renderer {
   VkPhysicalDevice m_Pdevice;
   VkDevice m_Device;
   Swapchain m_Swapchain;
+  Shared<Renderpass> m_Renderpass;
 };
 }  // namespace vr
