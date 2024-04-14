@@ -16,3 +16,4 @@ target_include_directories(core PRIVATE
 target_link_libraries("${CORE_LIB_NAME}" PUBLIC "${Vulkan_LIBRARIES}")
 target_link_libraries("${CORE_LIB_NAME}" PUBLIC glm)
 target_link_libraries("${CORE_LIB_NAME}" PUBLIC glfw)
+target_precompile_headers(${CORE_LIB_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/pch.h")
