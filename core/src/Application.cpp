@@ -7,6 +7,14 @@
 #include "log.h"
 
 namespace vr {
+
+Application* Application::s_Instance = nullptr;
+Application& Application::Get() {
+  if (s_Instance == nullptr) {
+    s_Instance = new Application();
+  }
+  return *s_Instance;
+}
 Application::Application() {
   Log::Init();  // TODO move to entrypoint
   if (!glfwInit()) {

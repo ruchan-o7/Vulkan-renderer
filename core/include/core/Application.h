@@ -5,10 +5,12 @@ namespace vr {
 class Application {
  public:
   Application();
-  ~Application();
+  static Application& Get();
   void Run();
 
  private:
+  ~Application();
+  static Application* s_Instance;
   GLFWwindow* m_WindowHandle;
   Shared<Renderer> m_Renderer;
 };
