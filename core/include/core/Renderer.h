@@ -1,5 +1,6 @@
 #pragma once
 #include "Base.h"
+#include "renderer/Device.h"
 #include "renderer/Renderpass.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -16,15 +17,18 @@ class Renderer {
   static Renderer& Get() { return *s_Instance; }
   void Init(GLFWwindow* window);
 
+  VkSurfaceKHR& GetSurface() { return m_Surface; }
+  Device& GetDevice() { return m_Device; }
+  VkInstance& GetVk() { return m_VkInstance; }
+
  private:
   static Renderer* s_Instance;
 
  private:
   VkInstance m_VkInstance;
   VkSurfaceKHR m_Surface;
-  VkPhysicalDevice m_Pdevice;
-  VkDevice m_Device;
   Swapchain m_Swapchain;
-  Shared<Renderpass> m_Renderpass;
+  Renderpass m_Renderpass;
+  Device m_Device;
 };
 }  // namespace vr

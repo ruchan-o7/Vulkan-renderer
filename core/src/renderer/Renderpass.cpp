@@ -1,5 +1,7 @@
 #include "renderer/Renderpass.h"
 
+#include "Renderer.h"
+#include "log.h"
 #include "renderer/VulkanCheckResult.h"
 #include "vulkan/vulkan_core.h"
 
@@ -25,7 +27,8 @@ VkFormat FindSupportedFormat(const List<VkFormat>& candidates,
       }
     }
   }
-  throw std::runtime_error("failed to find supported format!");
+  CORE_ERROR("failed to find supported format!");
+  return VK_FORMAT_B8G8R8A8_SINT;
 }
 VkFormat findDepthFormat(VkPhysicalDevice& device) {
   return FindSupportedFormat(
@@ -34,9 +37,8 @@ VkFormat findDepthFormat(VkPhysicalDevice& device) {
       VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
       device);
 }
-Renderpass::Renderpass(VkDevice& device, VkPhysicalDevice pDevice,
-                       VkFormat& format)
-    : device(device), format(format) {
+void Renderpass::Init() {
+  auto pDevice = Renderer::Get().GetDevice().GetPhysicalDevice();
   VkAttachmentDescription colorAttachment;
   VkAttachmentDescription depthAttachment;
   VkAttachmentDescription colorAttachmentResolve;
@@ -49,7 +51,6 @@ Renderpass::Renderpass(VkDevice& device, VkPhysicalDevice pDevice,
   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-  // depthAttachment.samples = m_MsaaSamples;
   depthAttachment.format = findDepthFormat(pDevice);
   depthAttachment.samples = VK_SAMPLE_COUNT_4_BIT;
   depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -108,8 +109,12 @@ Renderpass::Renderpass(VkDevice& device, VkPhysicalDevice pDevice,
   renderPassInfo.pSubpasses = &subpass;
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
-
-  VK_CALL(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
+  auto device = Renderer::Get().GetDevice();
+  VK_CALL(vkCreateRenderPass(device.GetLogicalDevicel(), &renderPassInfo,
+                             nullptr, &renderPass));
 }
-void Renderpass::CleanUp() { vkDestroyRenderPass(device, renderPass, nullptr); }
+void Renderpass::CleanUp() {
+  auto device = Renderer::Get().GetDevice().GetLogicalDevicel();
+  vkDestroyRenderPass(device, renderPass, nullptr);
+}
 }  // namespace vr

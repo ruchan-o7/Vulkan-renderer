@@ -7,6 +7,7 @@ class Application {
   Application();
   static Application& Get();
   void Run();
+  GLFWwindow* GetWindowHandle() const { return m_WindowHandle; }
 
  private:
   ~Application();

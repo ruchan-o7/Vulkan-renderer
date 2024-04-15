@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
+#include "log.h"
 #include "pch.h"
 
 static std::unordered_map<VkResult, std::string> ErrorDescriptions = {
@@ -101,34 +102,29 @@ static std::unordered_map<VkResult, std::string> ErrorDescriptions = {
 
 static bool VulkanCheckErrorStatus(VkResult x, const char* file, int line) {
   if (x != VK_SUCCESS) {
-    std::cout
-        << "\033[1;31;49m **Vulkan Function Call Error** Description : \033[0m"
-        << ErrorDescriptions[x] << " \033[2;90;49m [at Line : " << line
-        << " in File : " << file << "\033[0m]" << std::endl;
+    CORE_ERROR("*Vulkan Call Erro* => {} | {} | {}", ErrorDescriptions[x], file,
+               line);
+    // std::cout
+    //     << "\033[1;31;49m **Vulkan Function Call Error** Description :
+    //     \033[0m"
+    //     << ErrorDescriptions[x] << " \033[2;90;49m [at Line : " << line
+    //     << " in File : " << file << "\033[0m]" << std::endl;
     return true;
   } else
     return false;
 }
 
-#define VK_LOG_SUCCESS(msg)                                         \
-  std::cout << "\033[1;32m[VULKAN]\033[1;32m - SUCCESS : " << (msg) \
-            << " \033[0m\n";
+#define DEVICE Renderer::Get().GetDevice().GetLogicalDevice()
 
-#define VK_LOG(...)                                                            \
-  std::cout, "\033[1;32m[VULKAN]\033[1;33m - LOG : ", __VA_ARGS__, " \033[0m", \
-      std::endl
-
-#define DEVICE VKLogicalDevice::GetDeviceManager()->GetLogicalDevice()
-
-template <typename T>
-static std::ostream& operator,(std::ostream& out, const T& t) {
-  out << t;
-  return out;
-}
-
-// overloaded version to handle all those special std::endl and others...
-static std::ostream& operator,(std::ostream& out,
-                               std::ostream& (*f)(std::ostream&)) {
-  out << f;
-  return out;
-}
+// template <typename T>
+// static std::ostream& operator,(std::ostream& out, const T& t) {
+//   out << t;
+//   return out;
+// }
+//
+// // overloaded version to handle all those special std::endl and others...
+// static std::ostream& operator,(std::ostream& out,
+//                                std::ostream& (*f)(std::ostream&)) {
+//   out << f;
+//   return out;
+// }

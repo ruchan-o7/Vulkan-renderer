@@ -8,8 +8,7 @@ struct Swapchain;
 void createVulkanInstance(VkInstance* instance);
 void createSurface(VkInstance& instance, GLFWwindow* window,
                    VkSurfaceKHR& surface);
-void pickPhysicalDevice(VkInstance& instance, VkPhysicalDevice& pDevice,
-                        VkSurfaceKHR& surface);
+void pickPhysicalDevice(VkInstance& instance, VkPhysicalDevice& pDevice);
 void createLogicalDevice(VkPhysicalDevice& physicalDevice, VkDevice& device,
                          VkSurfaceKHR surface);
 void createSwapchain();

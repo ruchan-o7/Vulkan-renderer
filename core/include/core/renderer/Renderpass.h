@@ -1,13 +1,14 @@
 #pragma once
 #include <vulkan/vulkan.h>
 namespace vr {
-struct Renderpass {
-  VkRenderPass renderPass;
-  Renderpass(VkDevice& device, VkPhysicalDevice pDevice, VkFormat& format);
+class Renderpass {
+ public:
+  Renderpass();
+  void Init();
   void CleanUp();
 
  private:
-  VkDevice device;
+  VkRenderPass renderPass;
   VkFormat format;
 };
 }  // namespace vr

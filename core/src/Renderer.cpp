@@ -1,10 +1,8 @@
 #include "Renderer.h"
 
 #include "Base.h"
-#include "GLFW/glfw3.h"
 #include "log.h"
 #include "renderer/vulkan_loader.h"
-#include "vulkan/vulkan_core.h"
 
 namespace vr {
 Renderer* Renderer::s_Instance = nullptr;
@@ -15,17 +13,19 @@ void Renderer::Init(GLFWwindow* window) {
     return;
   }
   createSurface(m_VkInstance, window, m_Surface);
-  pickPhysicalDevice(m_VkInstance, m_Pdevice, m_Surface);
-  createLogicalDevice(m_Pdevice, m_Device, m_Surface);
-  createSwapchain(m_Pdevice, m_Device, m_Surface, window, m_Swapchain);
-  m_Renderpass =
-      CreateShared<Renderpass>(m_Device, m_Pdevice, m_Swapchain.format);
+
+  m_Device.Init();
+  // pickPhysicalDevice(m_VkInstance, m_Pdevice);
+  // createLogicalDevice(m_Pdevice, m_Device, m_Surface);
+  m_Swapchain.Init();
+  // createSwapchain(m_Pdevice, m_Device, m_Surface, window, m_Swapchain);
+  m_Renderpass.Init();
 }
 
 void Renderer::Shutdown() {
-  m_Renderpass->CleanUp();
-  m_Swapchain.Cleanup(m_Device);
-  vkDestroyDevice(m_Device, nullptr);
+  m_Renderpass.CleanUp();
+  m_Swapchain.Cleanup();
+  vkDestroyDevice(m_Device.GetLogicalDevicel(), nullptr);
 #ifdef VR_DEBUG
   DestroyDebugUtility(m_VkInstance);
 #endif
