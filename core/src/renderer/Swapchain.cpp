@@ -63,7 +63,7 @@ void Swapchain::Init() {
   VkSurfaceFormatKHR sf = ChooseSwapSurfaceFormat(swapChainSupport.formats);
   VkPresentModeKHR pm =
       VK_PRESENT_MODE_FIFO_KHR;  // ChooseSwapPresentMode(swapChainSupport.presentModes);
-  VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
+  VkExtent2D selectedExtent = ChooseSwapExtent(swapChainSupport.capabilities);
   u32 imageCount = swapChainSupport.capabilities.minImageCount + 1;
   if (swapChainSupport.capabilities.maxImageCount > 0 &&
       imageCount > swapChainSupport.capabilities.maxImageCount) {
@@ -75,7 +75,7 @@ void Swapchain::Init() {
   createInfo.minImageCount = imageCount;
   createInfo.imageFormat = sf.format;
   createInfo.imageColorSpace = sf.colorSpace;
-  createInfo.imageExtent = extent;
+  createInfo.imageExtent = selectedExtent;
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
   u32 queueFamilyIndicies[] = {indices.graphicsFamily.value(),
@@ -102,10 +102,9 @@ void Swapchain::Init() {
   VK_CALL(vkGetSwapchainImagesKHR(device.GetLogicalDevicel(), swapchain,
                                   &imageCount, images.data()));
   format = sf.format;
-  this->extent = extent;
-  u32 mageCount = images.size();
+  this->extent = selectedExtent;
   imageViews.resize(imageCount);
-  for (u32 i = 0; i < mageCount; i++) {
+  for (u32 i = 0; i < imageCount; i++) {
     imageViews[i] =
         createImageView(images[i], format, VK_IMAGE_ASPECT_COLOR_BIT, 1,
                         device.GetLogicalDevicel());

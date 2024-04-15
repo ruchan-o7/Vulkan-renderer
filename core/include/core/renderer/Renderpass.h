@@ -3,9 +3,10 @@
 namespace vr {
 class Renderpass {
  public:
-  Renderpass();
-  void Init();
+  Renderpass() = default;
+  void Init(VkFormat format);
   void CleanUp();
+  VkFormat GetFormat() const { return format; }
 
  private:
   VkRenderPass renderPass;

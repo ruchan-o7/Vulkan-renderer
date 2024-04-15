@@ -37,22 +37,25 @@ VkFormat findDepthFormat(VkPhysicalDevice& device) {
       VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT,
       device);
 }
-void Renderpass::Init() {
+void Renderpass::Init(VkFormat format) {
+  this->format = format;
   auto pDevice = Renderer::Get().GetDevice().GetPhysicalDevice();
   VkAttachmentDescription colorAttachment;
   VkAttachmentDescription depthAttachment;
   VkAttachmentDescription colorAttachmentResolve;
   colorAttachment.format = format;
   // colorAttachment.samples = m_MsaaSamples;
-  colorAttachment.samples = VK_SAMPLE_COUNT_4_BIT;
+  colorAttachment.samples = VK_SAMPLE_COUNT_2_BIT;
+  colorAttachment.flags = VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
   depthAttachment.format = findDepthFormat(pDevice);
-  depthAttachment.samples = VK_SAMPLE_COUNT_4_BIT;
+  depthAttachment.samples = VK_SAMPLE_COUNT_2_BIT;
   depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;

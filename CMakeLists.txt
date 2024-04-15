@@ -15,7 +15,7 @@ add_compile_definitions(
 
 find_package(Vulkan REQUIRED)
 
-add_compile_options(-Wall -pedantic -Wextra -Wno-missing-field-initializers)
+add_compile_options(-Wall -pedantic -Wextra -Wno-missing-field-initializers )
 include_directories("core" "${Vulkan_INCLUDE_DIRS}")
 
 set(CORE_LIB_NAME "core")
