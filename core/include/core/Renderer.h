@@ -14,7 +14,7 @@ class Renderer {
   Renderer() = default;
   ~Renderer() = default;
   void Shutdown();
-  static Renderer& Get() { return *s_Instance; }
+  static Renderer& Get();
   void Init(GLFWwindow* window);
 
   VkSurfaceKHR& GetSurface() { return m_Surface; }

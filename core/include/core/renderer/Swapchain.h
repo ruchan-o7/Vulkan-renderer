@@ -11,6 +11,7 @@ class Swapchain {
  public:
   void Init();
   void Cleanup();
+  VkFormat GetSwapchainImageFormat() const { return format; }
 
  private:
   VkSwapchainKHR swapchain;

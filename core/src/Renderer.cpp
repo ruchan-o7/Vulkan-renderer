@@ -6,6 +6,12 @@
 
 namespace vr {
 Renderer* Renderer::s_Instance = nullptr;
+Renderer& Renderer::Get() {
+  if (s_Instance == nullptr) {
+    s_Instance = new Renderer();
+  }
+  return *s_Instance;
+}
 void Renderer::Init(GLFWwindow* window) {
   createVulkanInstance(&m_VkInstance);
   if (m_VkInstance == nullptr) {
@@ -15,11 +21,8 @@ void Renderer::Init(GLFWwindow* window) {
   createSurface(m_VkInstance, window, m_Surface);
 
   m_Device.Init();
-  // pickPhysicalDevice(m_VkInstance, m_Pdevice);
-  // createLogicalDevice(m_Pdevice, m_Device, m_Surface);
   m_Swapchain.Init();
-  // createSwapchain(m_Pdevice, m_Device, m_Surface, window, m_Swapchain);
-  m_Renderpass.Init();
+  m_Renderpass.Init(m_Swapchain.GetSwapchainImageFormat());
 }
 
 void Renderer::Shutdown() {

@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "log.h"
 #include "renderer/VulkanCheckResult.h"
+#include "vulkan/vulkan_core.h"
 
 namespace vr {
 
@@ -74,12 +75,15 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) {
   m_LastQueueFamilyIndices = findQueueFamilies(device);
   bool extensionSupported = checkDeviceExtensionSupport(device);
   bool swapChainAdequate = false;
+  VkPhysicalDeviceProperties props{};
+  vkGetPhysicalDeviceProperties(device, &props);
   if (extensionSupported) {
-    SwapChainSupportDetails swapChainDetails = querySwapChainSupport(device);
-    swapChainAdequate = !swapChainDetails.formats.empty() &&
-                        !swapChainDetails.presentModes.empty();
+    m_QuerySwapchainSupport = querySwapChainSupport(device);
+    swapChainAdequate = !m_QuerySwapchainSupport.formats.empty() &&
+                        !m_QuerySwapchainSupport.presentModes.empty();
   }
   return m_LastQueueFamilyIndices.isComplete() && extensionSupported &&
+         props.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
          swapChainAdequate;
 }
 void Device::Init() {

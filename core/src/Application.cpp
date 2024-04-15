@@ -1,22 +1,20 @@
 #include "Application.h"
 
-#include <vulkan/vulkan.h>
-
-#include "Base.h"
-#include "GLFW/glfw3.h"
 #include "Renderer.h"
 #include "log.h"
 
 namespace vr {
 
 Application* Application::s_Instance = nullptr;
-Application& Application::Get() {
-  if (s_Instance == nullptr) {
-    s_Instance = new Application();
-  }
-  return *s_Instance;
-}
+Application& Application::Get() { return *s_Instance; }
 Application::Application() {
+  if (s_Instance != nullptr) {
+    CORE_CRITICAL("CAN NOT CREATE TWO INSTANCE OF APPLICATION");
+    return;
+  }
+  if (s_Instance == nullptr) {
+    s_Instance = this;
+  }
   Log::Init();  // TODO move to entrypoint
   if (!glfwInit()) {
     const char* err;
