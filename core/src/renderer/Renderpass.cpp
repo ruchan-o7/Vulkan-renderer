@@ -1,6 +1,6 @@
 #include "renderer/Renderpass.h"
 
-#include "renderer/vulkan_util.h"
+#include "renderer/VulkanCheckResult.h"
 #include "vulkan/vulkan_core.h"
 
 namespace vr {
@@ -109,7 +109,7 @@ Renderpass::Renderpass(VkDevice& device, VkPhysicalDevice pDevice,
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
 
-  VK_CHECK(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
+  VK_CALL(vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass));
 }
 void Renderpass::CleanUp() { vkDestroyRenderPass(device, renderPass, nullptr); }
 }  // namespace vr

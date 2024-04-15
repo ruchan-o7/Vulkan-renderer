@@ -7,9 +7,8 @@
 
 #include "Base.h"
 #include "log.h"
-#include "pch.h"
 #include "renderer/Swapchain.h"
-#include "renderer/vulkan_util.h"
+#include "renderer/VulkanCheckResult.h"
 #include "vulkan/vulkan_core.h"
 
 namespace vr {
@@ -133,11 +132,11 @@ void createVulkanInstance(VkInstance *instance) {
   createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCi;
 
 #endif
-  VK_CHECK(vkCreateInstance(&createInfo, nullptr, instance));
+  VK_CALL(vkCreateInstance(&createInfo, nullptr, instance));
 #ifdef VR_DEBUG
 
-  VK_CHECK(createDebugUtilsMessengerExt(*instance, &debugCi, nullptr,
-                                        &m_DebugMesenger));
+  VK_CALL(createDebugUtilsMessengerExt(*instance, &debugCi, nullptr,
+                                       &m_DebugMesenger));
 
 #endif
 }
@@ -145,7 +144,7 @@ void createSurface(VkInstance &instance, GLFWwindow *window,
                    VkSurfaceKHR &surface) {
   auto res = glfwCreateWindowSurface(instance, window, nullptr, &surface);
 
-  VK_CHECK(res);
+  VK_CALL(res);
 }
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice &device,
@@ -270,7 +269,7 @@ void createLogicalDevice(VkPhysicalDevice &physicalDevice, VkDevice &device,
   ci.ppEnabledLayerNames = validationLayers.data();
 #endif
 
-  VK_CHECK(vkCreateDevice(physicalDevice, &ci, nullptr, &device));
+  VK_CALL(vkCreateDevice(physicalDevice, &ci, nullptr, &device));
 }
 
 static void destroyDebugUtilsMessengerEXT(
@@ -381,14 +380,14 @@ void createSwapchain(VkPhysicalDevice &pDevice, VkDevice &device,
   createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
   createInfo.presentMode = pm;
   createInfo.clipped = VK_TRUE;
-  VK_CHECK(
+  VK_CALL(
       vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapchain.swapchain));
 
-  VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain.swapchain, &imageCount,
-                                   nullptr));
+  VK_CALL(vkGetSwapchainImagesKHR(device, swapchain.swapchain, &imageCount,
+                                  nullptr));
   swapchain.images.resize(imageCount);
-  VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain.swapchain, &imageCount,
-                                   swapchain.images.data()));
+  VK_CALL(vkGetSwapchainImagesKHR(device, swapchain.swapchain, &imageCount,
+                                  swapchain.images.data()));
   swapchain.format = sf.format;
   swapchain.extent = extent;
   u32 swapchainImageCount = swapchain.images.size();
@@ -413,7 +412,7 @@ VkImageView createImageView(VkImage image, VkFormat format,
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = 1;
   VkImageView imageView;
-  VK_CHECK(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
+  VK_CALL(vkCreateImageView(device, &viewInfo, nullptr, &imageView));
   return imageView;
 }
 }  // namespace vr
