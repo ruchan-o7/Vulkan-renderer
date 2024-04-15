@@ -3,6 +3,15 @@ project(renderer LANGUAGES CXX C)
 
 add_definitions(-D_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS)
 
+add_compile_definitions(
+$<$<CONFIG:Debug>:VR_DEBUG>
+$<$<CONFIG:Release>:VR_RELEASE>
+)
+add_compile_definitions(
+	$<$<PLATFORM_ID:Windows>:VR_WINDOWS>
+	$<$<PLATFORM_ID:Linux>:VR_LINUX>
+	$<$<PLATFORM_ID:Darwin>:VR_MACOS>
+)
 
 find_package(Vulkan REQUIRED)
 
