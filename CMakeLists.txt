@@ -26,7 +26,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_subdirectory(external/glm)
 add_subdirectory(external/glfw)
 
-set(SPDLOG_BUILD_WARNINGS OFF)
+set(SPDLOG_BUILD_SHARED  ON)
 add_subdirectory(external/spdlog)
 
 add_subdirectory(app)
