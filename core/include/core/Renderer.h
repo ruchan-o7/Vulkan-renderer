@@ -10,12 +10,14 @@ struct GLFWwindow;
 namespace vr {
 class Renderer {
  public:
-  Renderer(GLFWwindow* window);
+  Renderer() = default;
   ~Renderer() = default;
-  void CleanUp();
+  void Shutdown();
+  static Renderer& Get() { return *s_Instance; }
+  void Init(GLFWwindow* window);
 
  private:
-  void Init();
+  static Renderer* s_Instance;
 
  private:
   VkInstance m_VkInstance;

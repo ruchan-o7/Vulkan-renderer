@@ -1,6 +1,6 @@
 #pragma once
 #include "Base.h"
-#include "Renderer.h"
+#include "GLFW/glfw3.h"
 namespace vr {
 class Application {
  public:
@@ -12,7 +12,6 @@ class Application {
   ~Application();
   static Application* s_Instance;
   GLFWwindow* m_WindowHandle;
-  Shared<Renderer> m_Renderer;
 };
 
 }  // namespace vr

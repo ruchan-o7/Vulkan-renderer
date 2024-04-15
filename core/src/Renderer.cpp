@@ -1,13 +1,14 @@
 #include "Renderer.h"
 
 #include "Base.h"
+#include "GLFW/glfw3.h"
 #include "log.h"
 #include "renderer/vulkan_loader.h"
 #include "vulkan/vulkan_core.h"
 
 namespace vr {
-
-Renderer::Renderer(GLFWwindow* window) {
+Renderer* Renderer::s_Instance = nullptr;
+void Renderer::Init(GLFWwindow* window) {
   createVulkanInstance(&m_VkInstance);
   if (m_VkInstance == nullptr) {
     CORE_CRITICAL("Vulkan instance could not create!");
@@ -21,7 +22,7 @@ Renderer::Renderer(GLFWwindow* window) {
       CreateShared<Renderpass>(m_Device, m_Pdevice, m_Swapchain.format);
 }
 
-void Renderer::CleanUp() {
+void Renderer::Shutdown() {
   m_Renderpass->CleanUp();
   m_Swapchain.Cleanup(m_Device);
   vkDestroyDevice(m_Device, nullptr);
@@ -31,5 +32,4 @@ void Renderer::CleanUp() {
   vkDestroySurfaceKHR(m_VkInstance, m_Surface, nullptr);
   vkDestroyInstance(m_VkInstance, nullptr);
 }
-void Renderer::Init() {}
 }  // namespace vr

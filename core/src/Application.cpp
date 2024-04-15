@@ -4,6 +4,7 @@
 
 #include "Base.h"
 #include "GLFW/glfw3.h"
+#include "Renderer.h"
 #include "log.h"
 
 namespace vr {
@@ -26,11 +27,10 @@ Application::Application() {
   CORE_TRACE("GLFW initalized");
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   m_WindowHandle = glfwCreateWindow(300, 300, "Renderer", nullptr, nullptr);
-
-  m_Renderer = CreateShared<Renderer>(m_WindowHandle);
+  Renderer::Get().Init(m_WindowHandle);
 }
 Application::~Application() {
-  m_Renderer->CleanUp();
+  Renderer::Get().Shutdown();
   glfwTerminate();
 }
 void Application::Run() {
