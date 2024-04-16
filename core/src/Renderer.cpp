@@ -22,6 +22,10 @@ void Renderer::Init(GLFWwindow* window) {
 
   m_Device.Init();
   m_Swapchain.Init();
+<<<<<<< HEAD
+=======
+  // createSwapchain(m_Pdevice, m_Device, m_Surface, window, m_Swapchain);
+>>>>>>> 044fc8eb9e97da7d797c0014937ba7e240c3717e
   m_Renderpass.Init(m_Swapchain.GetSwapchainImageFormat());
 }
 
