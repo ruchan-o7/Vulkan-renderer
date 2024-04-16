@@ -5,6 +5,7 @@
 #include "Application.h"
 #include "Renderer.h"
 #include "renderer/VulkanCheckResult.h"
+#include "vulkan/vulkan_core.h"
 
 namespace vr {
 
@@ -57,7 +58,7 @@ VkImageView createImageView(VkImage image, VkFormat format,
   return imageView;
 }
 void Swapchain::Init() {
-  auto device = Renderer::Get().GetDevice();
+  auto device = Renderer::Get().GetContext().GetDevice();
   auto indices = device.GetFI();
   auto swapChainSupport = device.GetQSP();
   VkSurfaceFormatKHR sf = ChooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -71,15 +72,18 @@ void Swapchain::Init() {
   }
   VkSwapchainCreateInfoKHR createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-  createInfo.surface = Renderer::Get().GetSurface();
+  createInfo.surface = Renderer::Get().GetContext().GetSurface();
+
   createInfo.minImageCount = imageCount;
   createInfo.imageFormat = sf.format;
   createInfo.imageColorSpace = sf.colorSpace;
   createInfo.imageExtent = selectedExtent;
   createInfo.imageArrayLayers = 1;
   createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
   u32 queueFamilyIndicies[] = {indices.graphicsFamily.value(),
                                indices.presentFamily.value()};
+
   if (indices.graphicsFamily != indices.presentFamily) {
     createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
     createInfo.queueFamilyIndexCount = 2;
@@ -93,24 +97,38 @@ void Swapchain::Init() {
   createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
   createInfo.presentMode = pm;
   createInfo.clipped = VK_TRUE;
+
   VK_CALL(vkCreateSwapchainKHR(DEVICE, &createInfo, nullptr, &swapchain));
 
   VK_CALL(vkGetSwapchainImagesKHR(DEVICE, swapchain, &imageCount, nullptr));
-  images.resize(imageCount);
-  VK_CALL(
-      vkGetSwapchainImagesKHR(DEVICE, swapchain, &imageCount, images.data()));
   format = sf.format;
   this->extent = selectedExtent;
-  imageViews.resize(imageCount);
+
+  images.resize((size_t)imageCount);
+  List<VkImage> images__{imageCount};
+  VK_CALL(
+      vkGetSwapchainImagesKHR(DEVICE, swapchain, &imageCount, images__.data()));
   for (u32 i = 0; i < imageCount; i++) {
-    imageViews[i] = createImageView(images[i], format,
-                                    VK_IMAGE_ASPECT_COLOR_BIT, 1, DEVICE);
+    images[i].handle = images__[i];
+  }
+
+  imageViews.resize(imageCount);
+
+  for (u32 i = 0; i < imageCount; i++) {
+    imageViews[i].handle = createImageView(
+        images[i].handle, format, VK_IMAGE_ASPECT_COLOR_BIT, 1, DEVICE);
+  }
+}
+void Swapchain::CreateImageViews() {
+  imageViews.resize(images.size());
+  for (size_t i = 0; images.size(); i++) {
+    imageViews[i] = ImageView{images[i], format, VK_IMAGE_ASPECT_COLOR_BIT};
   }
 }
 void Swapchain::Cleanup() {
-  auto device = Renderer::Get().GetDevice();
+  auto device = Renderer::Get().GetContext().GetDevice();
   for (u32 i = 0; i < imageViews.size(); i++) {
-    vkDestroyImageView(DEVICE, imageViews[i], nullptr);
+    vkDestroyImageView(DEVICE, imageViews[i].handle, nullptr);
   }
   vkDestroySwapchainKHR(DEVICE, swapchain, nullptr);
 }

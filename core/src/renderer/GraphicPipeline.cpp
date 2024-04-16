@@ -134,7 +134,7 @@ void GraphicPipeline::Init(VkDescriptorSetLayout layout) {
   pipelineInfo.pDepthStencilState = &depthStencil;
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = &dynamicState;
-  auto renderpass = Renderer::Get().GetRenderpass();
+  auto renderpass = Renderer::Get().GetContext().GetRenderpass();
   pipelineInfo.layout = m_Layout;
   pipelineInfo.renderPass = renderpass.GetRP();
   pipelineInfo.subpass = 0;

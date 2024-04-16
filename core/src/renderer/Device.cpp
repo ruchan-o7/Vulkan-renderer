@@ -25,7 +25,7 @@ bool Device::checkDeviceExtensionSupport(VkPhysicalDevice &device) {
 }
 QueueuFamilyIndices Device::findQueueFamilies(VkPhysicalDevice d) {
   QueueuFamilyIndices indices;
-  auto surface = Renderer::Get().GetSurface();
+  auto surface = Renderer::Get().GetContext().GetSurface();
   u32 queueFamilyCount = 0;
   vkGetPhysicalDeviceQueueFamilyProperties(d, &queueFamilyCount, nullptr);
   List<VkQueueFamilyProperties> families(queueFamilyCount);
@@ -51,7 +51,7 @@ QueueuFamilyIndices Device::findQueueFamilies(VkPhysicalDevice d) {
 SwapChainSupportDetails Device::querySwapChainSupport(
     VkPhysicalDevice &device) {
   SwapChainSupportDetails details{};
-  auto surface = Renderer::Get().GetSurface();
+  auto surface = Renderer::Get().GetContext().GetSurface();
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface,
                                             &details.capabilities);
   u32 formatCount;
@@ -87,7 +87,7 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) {
          swapChainAdequate;
 }
 void Device::Init() {
-  VkInstance instance = Renderer::Get().GetVk();
+  VkInstance instance = Renderer::Get().GetContext().GetVk();
   u32 deviceCount = 0;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
   if (deviceCount == 0) {
