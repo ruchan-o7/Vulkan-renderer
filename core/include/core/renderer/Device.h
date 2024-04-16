@@ -6,7 +6,7 @@
 namespace vr {
 class Device {
  public:
-  VkDevice& GetLogicalDevicel() { return m_Device; }
+  VkDevice& GetLogicalDevice() { return m_Device; }
   VkPhysicalDevice& GetPhysicalDevice() { return m_Pdevice; }
   QueueuFamilyIndices GetFI() { return m_LastQueueFamilyIndices; }
   SwapChainSupportDetails GetQSP() { return m_QuerySwapchainSupport; }

@@ -93,28 +93,25 @@ void Swapchain::Init() {
   createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
   createInfo.presentMode = pm;
   createInfo.clipped = VK_TRUE;
-  VK_CALL(vkCreateSwapchainKHR(device.GetLogicalDevicel(), &createInfo, nullptr,
-                               &swapchain));
+  VK_CALL(vkCreateSwapchainKHR(DEVICE, &createInfo, nullptr, &swapchain));
 
-  VK_CALL(vkGetSwapchainImagesKHR(device.GetLogicalDevicel(), swapchain,
-                                  &imageCount, nullptr));
+  VK_CALL(vkGetSwapchainImagesKHR(DEVICE, swapchain, &imageCount, nullptr));
   images.resize(imageCount);
-  VK_CALL(vkGetSwapchainImagesKHR(device.GetLogicalDevicel(), swapchain,
-                                  &imageCount, images.data()));
+  VK_CALL(
+      vkGetSwapchainImagesKHR(DEVICE, swapchain, &imageCount, images.data()));
   format = sf.format;
   this->extent = selectedExtent;
   imageViews.resize(imageCount);
   for (u32 i = 0; i < imageCount; i++) {
-    imageViews[i] =
-        createImageView(images[i], format, VK_IMAGE_ASPECT_COLOR_BIT, 1,
-                        device.GetLogicalDevicel());
+    imageViews[i] = createImageView(images[i], format,
+                                    VK_IMAGE_ASPECT_COLOR_BIT, 1, DEVICE);
   }
 }
 void Swapchain::Cleanup() {
   auto device = Renderer::Get().GetDevice();
   for (u32 i = 0; i < imageViews.size(); i++) {
-    vkDestroyImageView(device.GetLogicalDevicel(), imageViews[i], nullptr);
+    vkDestroyImageView(DEVICE, imageViews[i], nullptr);
   }
-  vkDestroySwapchainKHR(device.GetLogicalDevicel(), swapchain, nullptr);
+  vkDestroySwapchainKHR(DEVICE, swapchain, nullptr);
 }
 }  // namespace vr

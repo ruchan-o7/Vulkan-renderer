@@ -112,12 +112,7 @@ void Renderpass::Init(VkFormat format) {
   renderPassInfo.pSubpasses = &subpass;
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
-  auto device = Renderer::Get().GetDevice();
-  VK_CALL(vkCreateRenderPass(device.GetLogicalDevicel(), &renderPassInfo,
-                             nullptr, &renderPass));
+  VK_CALL(vkCreateRenderPass(DEVICE, &renderPassInfo, nullptr, &renderPass));
 }
-void Renderpass::CleanUp() {
-  auto device = Renderer::Get().GetDevice().GetLogicalDevicel();
-  vkDestroyRenderPass(device, renderPass, nullptr);
-}
+void Renderpass::CleanUp() { vkDestroyRenderPass(DEVICE, renderPass, nullptr); }
 }  // namespace vr

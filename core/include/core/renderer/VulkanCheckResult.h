@@ -104,11 +104,6 @@ static bool VulkanCheckErrorStatus(VkResult x, const char* file, int line) {
   if (x != VK_SUCCESS) {
     CORE_ERROR("*Vulkan Call Erro* => {} | {} | {}", ErrorDescriptions[x], file,
                line);
-    // std::cout
-    //     << "\033[1;31;49m **Vulkan Function Call Error** Description :
-    //     \033[0m"
-    //     << ErrorDescriptions[x] << " \033[2;90;49m [at Line : " << line
-    //     << " in File : " << file << "\033[0m]" << std::endl;
     return true;
   } else
     return false;
