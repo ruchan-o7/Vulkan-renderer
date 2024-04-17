@@ -25,6 +25,13 @@ Application::Application() {
   CORE_TRACE("GLFW initalized");
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   m_WindowHandle = glfwCreateWindow(300, 300, "Renderer", nullptr, nullptr);
+  glfwSetWindowUserPointer(m_WindowHandle, this);
+  glfwSetFramebufferSizeCallback(m_WindowHandle, [](GLFWwindow* window,
+                                                    int width, int height) {
+    auto app = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window));
+    app->framebufferResized = true;
+  });
+
   Renderer::Get().Init(m_WindowHandle);
 }
 Application::~Application() {
@@ -34,6 +41,7 @@ Application::~Application() {
 void Application::Run() {
   CORE_INFO("App running...");
   while (!glfwWindowShouldClose(m_WindowHandle)) {
+    Renderer::Get().Draw();
     glfwPollEvents();
   }
   CORE_WARNING("App closing...");

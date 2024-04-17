@@ -6,6 +6,8 @@
 namespace vr {
 #define u32 uint32_t
 #define i32 int32_t
+#define i16 int16_t
+#define u16 uint16_t
 template <typename T>
 using List = std::vector<T>;
 template <typename T, size_t S>

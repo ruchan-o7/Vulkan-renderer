@@ -9,6 +9,9 @@
 namespace vr {
 void Shader::Init_() {
   auto code = vr::ReadFile(m_Path);
+  if (code.empty()) {
+    return;
+  }
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = code.size();

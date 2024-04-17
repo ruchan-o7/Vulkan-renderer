@@ -109,7 +109,8 @@ static bool VulkanCheckErrorStatus(VkResult x, const char* file, int line) {
     return false;
 }
 
-#define DEVICE Renderer::Get().GetContext().GetDevice().GetLogicalDevice()
+// #define DEVICE Renderer::Get().context->GetDevice().GetLogicalDevice()
+#define DEVICE Renderer::Get().context->device
 
 // template <typename T>
 // static std::ostream& operator,(std::ostream& out, const T& t) {

@@ -12,6 +12,7 @@ class Application {
  private:
   static Application* s_Instance;
   GLFWwindow* m_WindowHandle;
+  bool framebufferResized = false;
 };
 
 }  // namespace vr

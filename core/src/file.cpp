@@ -12,6 +12,7 @@ List<char> ReadFile(const std::string& filename) {
   if (!f.is_open()) {
     f.close();
     CORE_ERROR("FAILED TO OPEN FILE!");
+    return {};
   }
   size_t fileSize = (size_t)f.tellg();
   List<char> buffer(fileSize);
