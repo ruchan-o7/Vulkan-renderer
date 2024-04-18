@@ -13,9 +13,9 @@ void Shader::Init_() {
     return;
   }
   VkShaderModuleCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  createInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const u32*>(code.data());
+  createInfo.pCode    = reinterpret_cast<const u32*>(code.data());
   VK_CALL(vkCreateShaderModule(DEVICE, &createInfo, nullptr, &m_Module));
 }
 Shader::Shader(const std::string& path)
@@ -40,7 +40,7 @@ void Shader::Load(const std::string& path) {
 }
 Shader::~Shader() {
   if (m_Module != VK_NULL_HANDLE) {
-    vkDestroyShaderModule(DEVICE, m_Module, nullptr);
+    vkDestroyShaderModule(Renderer::GetContext().device, m_Module, nullptr);
   }
 }
 }  // namespace vr

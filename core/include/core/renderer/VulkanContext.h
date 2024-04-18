@@ -28,11 +28,22 @@ struct SwapChainSupportDetails {
 };
 class VulkanContext {
  public:
+  using EventCallbackFn = std::function<void(Event&)>;
+  EventCallbackFn eventCallback;
+  void OnEvent(Event& e);
+  bool OnWindowResize(WindowResizeEvent& e);
+  void BeginDraw();
+  void EndDraw();
+  void initVulkan(GLFWwindow* window, u32 width, u32 height);
+  void DrawTriangle();
+  void cleanup();
+  VkDevice device;
+
+ private:
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;
   VkSurfaceKHR surface;
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  VkDevice device;
   VkQueue graphicsQueue;
   VkQueue presentQueue;
   VkSwapchainKHR swapChain;
@@ -55,9 +66,7 @@ class VulkanContext {
   List<VkFence> inFlightFences;
   uint32_t currentFrame   = 0;
   bool framebufferResized = false;
-  void initVulkan(GLFWwindow* window, u32 width, u32 height);
   void cleanupSwapChain();
-  void cleanup();
   void recreateSwapChain(int width, int height);
   void createInstance();
   void populateDebugMessengerCreateInfo(
@@ -96,11 +105,6 @@ class VulkanContext {
   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
   List<const char*> getRequiredExtensions();
   bool checkValidationLayerSupport();
-
-  using EventCallbackFn = std::function<void(Event&)>;
-  EventCallbackFn eventCallback;
-  void OnEvent(Event& e);
-  bool OnWindowResize(WindowResizeEvent& e);
 
 };  // namespace vr
 

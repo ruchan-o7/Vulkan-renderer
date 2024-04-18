@@ -58,8 +58,12 @@ Application::~Application() {
 }
 void Application::Run() {
   CORE_INFO("App running...");
+  auto renderer = Renderer::Get();
   while (!glfwWindowShouldClose(m_WindowHandle)) {
-    Renderer::Get().Draw();
+    Renderer::BeginDraw();
+    { Renderer::DrawTriangle(); }
+    Renderer::EndDraw();
+    // Renderer::Get().Draw();
     glfwPollEvents();
   }
   CORE_WARNING("App closing...");

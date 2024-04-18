@@ -1,36 +1,28 @@
 #include "Renderer.h"
 
-#include "renderer/VulkanCheckResult.h"
 #include "renderer/VulkanContext.h"
-#include "vulkan/vulkan_core.h"
 
 namespace vr {
-Renderer* Renderer::s_Instance = nullptr;
+Renderer* Renderer::s_Instance     = nullptr;
+VulkanContext* Renderer::s_Context = nullptr;
 Renderer& Renderer::Get() {
   if (s_Instance == nullptr) {
     s_Instance = new Renderer();
   }
   return *s_Instance;
 }
-Renderer::Renderer() { context = new VulkanContext(); }
+Renderer::Renderer() { s_Context = new VulkanContext(); }
+VulkanContext& Renderer::GetContext() { return *s_Context; }
 
-void Renderer::ContextOnEvent(Event& e) { context->OnEvent(e); }
+void Renderer::ContextOnEvent(Event& e) { s_Context->OnEvent(e); }
 void Renderer::Init(GLFWwindow* window, u32 width, u32 height) {
-  context->initVulkan(window, width, height);
+  s_Context->initVulkan(window, width, height);
 }
-void Renderer::Shutdown() { context->cleanup(); }
+void Renderer::Shutdown() { s_Context->cleanup(); }
+void Renderer::DrawTriangle() { s_Context->DrawTriangle(); }
+void Renderer::BeginDraw() { s_Context->BeginDraw(); }
+void Renderer::EndDraw() { s_Context->EndDraw(); }
 void Renderer::Draw() {
-  context->drawFrame();
-  // u32 imageIndex = 0;
-  // VK_CALL(vkAcquireNextImageKHR(context->GetDevice().GetLogicalDevice(),
-  //                               context->swapchain.swapchainHandle,
-  //                               UINT64_MAX, context->semaphore, nullptr,
-  //                               &imageIndex));
-  // VkPresentInfoKHR presentInfo{};
-  // presentInfo.sType          = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-  // presentInfo.swapchainCount = 1;
-  // presentInfo.pSwapchains    = &context->swapchain.swapchainHandle;
-  // VK_CALL(vkQueuePresentKHR(context->graphicQueue, &presentInfo));
-  // VK_CALL(vkDeviceWaitIdle(context->GetDevice().GetLogicalDevice()));
+  // context->drawFrame();
 }
 }  // namespace vr
