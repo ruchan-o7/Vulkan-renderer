@@ -13,7 +13,11 @@ Renderer& Renderer::Get() {
   return *s_Instance;
 }
 Renderer::Renderer() { context = new VulkanContext(); }
-void Renderer::Init(GLFWwindow* window) { context->initVulkan(window); }
+
+void Renderer::ContextOnEvent(Event& e) { context->OnEvent(e); }
+void Renderer::Init(GLFWwindow* window, u32 width, u32 height) {
+  context->initVulkan(window, width, height);
+}
 void Renderer::Shutdown() { context->cleanup(); }
 void Renderer::Draw() {
   context->drawFrame();

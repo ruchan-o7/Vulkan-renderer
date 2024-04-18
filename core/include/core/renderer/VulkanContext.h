@@ -1,11 +1,14 @@
 #pragma once
 #include <vulkan/vulkan.h>
+
+#include "Events/Event.h"
+#include "Events/WindowResizeEvent.h"
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <fstream>
-
 #include "pch.h"
+
 namespace vr {
 void DestroyDebugUtilsMessengerEXT(VkInstance instance,
                                    VkDebugUtilsMessengerEXT debugMessenger,
@@ -50,21 +53,20 @@ class VulkanContext {
   List<VkSemaphore> imageAvailableSemaphores;
   List<VkSemaphore> renderFinishedSemaphores;
   List<VkFence> inFlightFences;
-  uint32_t currentFrame = 0;
-  GLFWwindow* m_WindowHandle;
+  uint32_t currentFrame   = 0;
   bool framebufferResized = false;
-  void initVulkan(GLFWwindow* window);
+  void initVulkan(GLFWwindow* window, u32 width, u32 height);
   void cleanupSwapChain();
   void cleanup();
-  void recreateSwapChain();
+  void recreateSwapChain(int width, int height);
   void createInstance();
   void populateDebugMessengerCreateInfo(
       VkDebugUtilsMessengerCreateInfoEXT& createInfo);
   void setupDebugMessenger();
-  void createSurface();
+  void createSurface(GLFWwindow* window);
   void pickPhysicalDevice();
   void createLogicalDevice();
-  void createSwapChain();
+  void createSwapChain(u32 width, u32 height);
   void createImageViews();
   void createRenderPass();
   void createGraphicsPipeline();
@@ -87,12 +89,19 @@ class VulkanContext {
       const List<VkSurfaceFormatKHR>& availableFormats);
   VkPresentModeKHR chooseSwapPresentMode(
       const List<VkPresentModeKHR>& availablePresentModes);
-  VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+  VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities,
+                              u32 width, u32 height);
   bool isDeviceSuitable(VkPhysicalDevice device);
   bool checkDeviceExtensionSupport(VkPhysicalDevice device);
   QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
   List<const char*> getRequiredExtensions();
   bool checkValidationLayerSupport();
+
+  using EventCallbackFn = std::function<void(Event&)>;
+  EventCallbackFn eventCallback;
+  void OnEvent(Event& e);
+  bool OnWindowResize(WindowResizeEvent& e);
+
 };  // namespace vr
 
 }  // namespace vr

@@ -3,6 +3,8 @@
 #include <cstring>
 
 #include "Base.h"
+#include "Events/Event.h"
+#include "log.h"
 #include "renderer/Shader.h"
 #include "renderer/Vertex.h"
 namespace vr {
@@ -46,14 +48,13 @@ const bool enableValidationLayers = true;
 #endif
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device,
                                               VkSurfaceKHR surface);
-void VulkanContext::initVulkan(GLFWwindow* window) {
-  m_WindowHandle = window;
+void VulkanContext::initVulkan(GLFWwindow* window, u32 width, u32 height) {
   createInstance();
   setupDebugMessenger();
-  createSurface();
+  createSurface(window);
   pickPhysicalDevice();
   createLogicalDevice();
-  createSwapChain();
+  createSwapChain(width, height);
   createImageViews();
   createRenderPass();
   createGraphicsPipeline();
@@ -63,6 +64,16 @@ void VulkanContext::initVulkan(GLFWwindow* window) {
   createIndexBuffer();
   createCommandBuffers();
   createSyncObjects();
+}
+void VulkanContext::OnEvent(Event& e) {
+  EventDispatcher dispatcher(e);
+  dispatcher.Dispatch<WindowResizeEvent>(
+      BIND_EVENT(VulkanContext::OnWindowResize));
+}
+bool VulkanContext::OnWindowResize(WindowResizeEvent& e) {
+  CORE_TRACE("Vulkan context listened to change of window resize");
+  recreateSwapChain(e.GetWidth(), e.GetHeight());
+  return true;
 }
 void VulkanContext::createInstance() {
   if (enableValidationLayers && !checkValidationLayerSupport()) {
@@ -114,8 +125,8 @@ void VulkanContext::setupDebugMessenger() {
     throw std::runtime_error("failed to set up debug messenger!");
   }
 }
-void VulkanContext::createSurface() {
-  if (glfwCreateWindowSurface(instance, m_WindowHandle, nullptr, &surface) !=
+void VulkanContext::createSurface(GLFWwindow* window) {
+  if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
       VK_SUCCESS) {
     throw std::runtime_error("failed to create window surface!");
   }
@@ -189,14 +200,15 @@ void VulkanContext::createLogicalDevice() {
   vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
   vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
-void VulkanContext::createSwapChain() {
+void VulkanContext::createSwapChain(u32 width, u32 height) {
   auto swapChainSupport = querySwapChainSupport(physicalDevice, surface);
 
   VkSurfaceFormatKHR surfaceFormat =
       chooseSwapSurfaceFormat(swapChainSupport.formats);
   VkPresentModeKHR presentMode =
       chooseSwapPresentMode(swapChainSupport.presentModes);
-  VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+  VkExtent2D extent =
+      chooseSwapExtent(swapChainSupport.capabilities, width, height);
 
   u32 imageCount = swapChainSupport.capabilities.minImageCount + 1;
   if (swapChainSupport.capabilities.maxImageCount > 0 &&
@@ -746,7 +758,7 @@ void VulkanContext::drawFrame() {
       VK_NULL_HANDLE, &imageIndex);
 
   if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-    recreateSwapChain();
+    recreateSwapChain(-1, -1);
     return;
   } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
     throw std::runtime_error("failed to acquire swap chain image!");
@@ -797,26 +809,19 @@ void VulkanContext::drawFrame() {
   if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
       framebufferResized) {
     framebufferResized = false;
-    recreateSwapChain();
+    recreateSwapChain(-1, -1);
   } else if (result != VK_SUCCESS) {
     throw std::runtime_error("failed to present swap chain image!");
   }
 
   currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
-void VulkanContext::recreateSwapChain() {
-  int width = 0, height = 0;
-  glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-  while (width == 0 || height == 0) {
-    glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-    glfwWaitEvents();
-  }
-
+void VulkanContext::recreateSwapChain(int width, int height) {
   vkDeviceWaitIdle(device);
 
   cleanupSwapChain();
 
-  createSwapChain();
+  createSwapChain(width, height);
   createImageViews();
   createFramebuffers();
 }
@@ -860,15 +865,12 @@ VkPresentModeKHR VulkanContext::chooseSwapPresentMode(
 }
 
 VkExtent2D VulkanContext::chooseSwapExtent(
-    const VkSurfaceCapabilitiesKHR& capabilities) {
+    const VkSurfaceCapabilitiesKHR& capabilities, u32 width, u32 height) {
   if (capabilities.currentExtent.width != std::numeric_limits<u32>::max()) {
     return capabilities.currentExtent;
   } else {
     int width, height;
-    glfwGetFramebufferSize(m_WindowHandle, &width, &height);
-
-    VkExtent2D actualExtent = {static_cast<u32>(width),
-                               static_cast<u32>(height)};
+    VkExtent2D actualExtent = {width, height};
 
     actualExtent.width =
         std::clamp(actualExtent.width, capabilities.minImageExtent.width,
