@@ -1,1 +1,1 @@
-cmake --build build -j
+cls && cmake --build build -j
